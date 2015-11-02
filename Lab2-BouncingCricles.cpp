@@ -45,13 +45,12 @@ void CheckCollisions(std::vector<BouncingThing> &collidableShapes) { //Check if 
 	}
 }
 
-bool CheckIfColliding(int x, int y, int radius, std::vector<BouncingThing> &collidableShapes) { //If the area to spawn the shape is clear of other shapes
+bool CheckIfColliding(BouncingThing bT, std::vector<BouncingThing> &collidableShapes) { //If the area to spawn the shape is clear of other shapes
 	bool colliding = false;
 	int amountOfShapes = collidableShapes.size();
 	for (int i = 0; i < amountOfShapes; i++){
-		float distance = Collision::getLength(sf::Vector2f((float)x, (float)y) - collidableShapes[i].getCentre());
-		if (distance < radius + collidableShapes[i].getRadius()){
-			colliding = true;
+		if (bT.isCollidingWith(collidableShapes[i])){
+			bT.resolveCollisionWith(collidableShapes[i]);
 			break;
 		}
 	}
@@ -67,23 +66,24 @@ void AddShapes(sf::String shapeName, int amountToAdd, std::vector<BouncingThing>
 	const int ScreenHeight = 600;
 
 	for (int i = 0; i < amountToAdd; i++) {
-		int radius = MinRadius + (rand() % (MaxRadius - MinRadius + 1));
-		int xPos = 3 * MaxRadius + (rand() % (ScreenWidth - (6 * MaxRadius)));
-		int yPos = 3 * MaxRadius + (rand() % (ScreenHeight - (6 * MaxRadius)));
-
-		while (CheckIfColliding(xPos, yPos, radius, collidables)){
-			xPos = 3 * MaxRadius + (rand() % (ScreenWidth - (6 * MaxRadius)));
-			yPos = 3 * MaxRadius + (rand() % (ScreenHeight - (6 * MaxRadius)));
-		}
+		float radius = 20.f;// MinRadius + (rand() % (MaxRadius - MinRadius + 1));
+		float xPos = 3 * MaxRadius + (rand() % (ScreenWidth - (6 * MaxRadius)));
+		float yPos = 3 * MaxRadius + (rand() % (ScreenHeight - (6 * MaxRadius)));
 		int dir = 1 - ((rand() % 2) * 2); //dir = 1 or -1
-		float rndRotationSpeed = (float)(0.05 + ((rand() % 21) / 100));
+		float rndRotationSpeed = 0.f;// (float)(0.05 + ((rand() % 21) / 100));
+
+		BouncingThing bT(radius, Speed, ScreenWidth, ScreenHeight, sf::Vector2f(radius, yPos), rndRotationSpeed * dir, 4);
+		/*while (*/CheckIfColliding(bT, collidables);//){
+			//xPos = 3 * MaxRadius + (rand() % (ScreenWidth - (6 * MaxRadius)));
+			//yPos = 3 * MaxRadius + (rand() % (ScreenHeight - (6 * MaxRadius)));
+		//}
 		if (shapeName == "Square"){
-			collidables.push_back(BouncingThing((float)radius, Speed, ScreenWidth, ScreenHeight,
-				sf::Vector2f((float)(xPos), (float)(yPos)), (float)rndRotationSpeed * dir, 4));
+			collidables.push_back(bT);
+			std::cout << bT.getPosition().x << " ," << bT.getPosition().y << std::endl;
 		}
 		else if (shapeName == "Triangle"){
-			collidables.push_back(BouncingThing((float)radius, Speed, ScreenWidth, ScreenHeight,
-				sf::Vector2f((float)(xPos), (float)(yPos)), (float)rndRotationSpeed * dir, 3));
+			collidables.push_back(BouncingThing(radius, Speed, ScreenWidth, ScreenHeight,
+				sf::Vector2f(xPos, yPos), rndRotationSpeed * dir, 3));
 		}
 	}
 }
@@ -117,7 +117,7 @@ int main()
 	frameTimer.restart();
 
 	const int AmountOfSquares = 5;
-	const int AmountOfTriangles = 5;
+	const int AmountOfTriangles = 0;
 	std::vector<BouncingThing> collidableShapes;
 	int amountOfShapes = AmountOfSquares + AmountOfTriangles;
 	

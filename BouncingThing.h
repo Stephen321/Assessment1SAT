@@ -14,10 +14,8 @@ public:
 	sf::ConvexShape getShape();
 	int getID();
 	sf::Vector2f getVelocity();
-	sf::Vector2f getCentre();
 	float getRadius();
 	void setRotation(float rotate);
-	//testing
 	sf::Vector2f getPosition();
 	std::vector<sf::Vector2f> getNormals();
 	std::vector<sf::Vector2f> getPoints();

@@ -63,16 +63,13 @@ bool Collision::checkForCollisionSAT(BouncingThing& b1, BouncingThing& b2){
 		}
 		std::cout << smallestDistance << std::endl;
 	}
-	sf::Vector2f vectorBetween = b2.getCentre() - b1.getCentre();
+	sf::Vector2f vectorBetween = b2.getPosition() - b1.getPosition();
 	float dot = getDotProduct(vectorBetween, smallestDistNorm);
 	std::cout << "Dot: " << dot << std::endl;
-	std::cout << "b1.X: " << b1.getCentre().x << std::endl;
-	std::cout << "b2.X: " << b2.getCentre().x << std::endl;
+	mtv = smallestDistance * smallestDistNorm;
 	
 	if (dot > 0)
-		mtv = smallestDistance * -smallestDistNorm;
-	else
-		mtv = smallestDistance * smallestDistNorm;
+		mtv = -mtv;
 	b1.move(mtv);
 	return true;
 }

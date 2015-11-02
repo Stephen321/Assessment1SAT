@@ -14,16 +14,16 @@ void BouncingThing::setUpShape() {
 	float angleIncrement = 360 / (float)m_PointAmount;
 	for (int i = 0; i < m_PointAmount; i++){
 		float a = ((angleIncrement * i) + m_rotation) * (m_PI / 180);
-		m_shape.setPoint(i, getCentre() + sf::Vector2f((Radius * cos(a)),
+		m_shape.setPoint(i, m_position + sf::Vector2f((Radius * cos(a)),
 													   (Radius * sin(a)))); 
 	}
 }
 
 void BouncingThing::Update(float dt){
-	CheckWallCollisions();
-	m_position += m_velocity * dt;
-	m_rotation += m_rotationSpeed;
-	setUpShape();
+	//CheckWallCollisions();
+//	m_position += m_velocity * dt;
+//	m_rotation += m_rotationSpeed;
+//setUpShape();
 }
 
 void BouncingThing::CheckWallCollisions(){
@@ -41,7 +41,7 @@ void BouncingThing::CheckWallCollisions(){
 bool BouncingThing::isCollidingWith(BouncingThing &c){ 
 	bool colliding = false;
 	if (this != &c) {
-		sf::Vector2f vectorBetween = getCentre() - c.getCentre();
+		sf::Vector2f vectorBetween = m_position - c.getPosition();
 		float distance = Collision::getLength(vectorBetween);
 		if (distance < Radius + c.getRadius()) //Circle collision detection - Broad Phase
 			colliding = Collision::checkForCollisionSAT((*this), c); //narrow phase
@@ -50,7 +50,7 @@ bool BouncingThing::isCollidingWith(BouncingThing &c){
 }
 
 void BouncingThing::resolveCollisionWith(BouncingThing &c){
-	sf::Vector2f vectorBetween = Collision::getNormal(getCentre() - c.getCentre()); //normalise
+	sf::Vector2f vectorBetween = Collision::getNormal(m_position - c.getPosition()); //normalise
 	sf::Vector2f vpa1 = Collision::getDotProduct(m_velocity, vectorBetween) * vectorBetween;//parallel proj of velocity onto LOI
 	sf::Vector2f vpr1 = m_velocity - vpa1;//perpendicular proj of velocity on LOI (wont change)
 	sf::Vector2f vpa2 = Collision::getDotProduct(c.getVelocity(), vectorBetween) * vectorBetween;
@@ -72,12 +72,12 @@ sf::ConvexShape BouncingThing::getShape(){
 	return m_shape;
 }
 
-sf::Vector2f BouncingThing::getCentre(){
-	return m_position + sf::Vector2f(Radius, Radius);
-}
-
 float BouncingThing::getRadius(){
 	return Radius;
+}
+
+sf::Vector2f BouncingThing::getPosition(){
+	return m_position;
 }
 
 void BouncingThing::setRotation(float rotate) {
