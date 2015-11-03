@@ -1,7 +1,8 @@
+no CheckCollisions(collidableShapes) = 3000fps
 circle collision detection only: 1330 fps
 SAT collision detection only:  42 fps
 SAT collision detection without duplicate normals:
-Circle collision and then SAT: 
+Circle collision and then SAT: 1080
 Circle collision and then SAT without duplicate normals:
 Quadtree and then SAT:
 Quadtree and then SAT without duplicate normals:

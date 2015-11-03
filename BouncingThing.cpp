@@ -21,9 +21,9 @@ void BouncingThing::setUpShape() {
 
 void BouncingThing::Update(float dt){
 	//CheckWallCollisions();
-//	m_position += m_velocity * dt;
+	//m_position += m_velocity * dt;
 //	m_rotation += m_rotationSpeed;
-//setUpShape();
+	setUpShape();
 }
 
 void BouncingThing::CheckWallCollisions(){
@@ -53,7 +53,7 @@ void BouncingThing::resolveCollisionWith(BouncingThing &c){
 	sf::Vector2f vectorBetween = Collision::getNormal(m_position - c.getPosition()); //normalise
 	sf::Vector2f vpa1 = Collision::getDotProduct(m_velocity, vectorBetween) * vectorBetween;//parallel proj of velocity onto LOI
 	sf::Vector2f vpr1 = m_velocity - vpa1;//perpendicular proj of velocity on LOI (wont change)
-	sf::Vector2f vpa2 = Collision::getDotProduct(c.getVelocity(), vectorBetween) * vectorBetween;
+ 	sf::Vector2f vpa2 = Collision::getDotProduct(c.getVelocity(), vectorBetween) * vectorBetween;
 	sf::Vector2f vpr2 = c.getVelocity() - vpa2;
 
 	setVelocity(vpa2 + vpr1);

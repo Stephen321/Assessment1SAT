@@ -45,7 +45,7 @@ void CheckCollisions(std::vector<BouncingThing> &collidableShapes) { //Check if 
 	}
 }
 
-bool CheckIfColliding(BouncingThing bT, std::vector<BouncingThing> &collidableShapes) { //If the area to spawn the shape is clear of other shapes
+bool CheckIfColliding(BouncingThing& bT, std::vector<BouncingThing> &collidableShapes) { //If the area to spawn the shape is clear of other shapes
 	bool colliding = false;
 	int amountOfShapes = collidableShapes.size();
 	for (int i = 0; i < amountOfShapes; i++){
@@ -57,7 +57,12 @@ bool CheckIfColliding(BouncingThing bT, std::vector<BouncingThing> &collidableSh
 	return colliding;
 }
 
-void AddShapes(sf::String shapeName, int amountToAdd, std::vector<BouncingThing> & collidables){
+
+
+std::vector<sf::CircleShape> testCentres;
+
+
+void AddShapes(const sf::String& shapeName, int amountToAdd, std::vector<BouncingThing> & collidables){
 
 	const int MinRadius = 10; //min
 	const int MaxRadius = 25; //max
@@ -72,14 +77,16 @@ void AddShapes(sf::String shapeName, int amountToAdd, std::vector<BouncingThing>
 		int dir = 1 - ((rand() % 2) * 2); //dir = 1 or -1
 		float rndRotationSpeed = 0.f;// (float)(0.05 + ((rand() % 21) / 100));
 
-		BouncingThing bT(radius, Speed, ScreenWidth, ScreenHeight, sf::Vector2f(radius, yPos), rndRotationSpeed * dir, 4);
-		/*while (*/CheckIfColliding(bT, collidables);//){
-			//xPos = 3 * MaxRadius + (rand() % (ScreenWidth - (6 * MaxRadius)));
-			//yPos = 3 * MaxRadius + (rand() % (ScreenHeight - (6 * MaxRadius)));
-		//}
+		BouncingThing bT(radius, Speed, ScreenWidth, ScreenHeight, sf::Vector2f(radius*3, yPos), rndRotationSpeed * dir, 4);
+		while (CheckIfColliding(bT, collidables));
 		if (shapeName == "Square"){
 			collidables.push_back(bT);
 			std::cout << bT.getPosition().x << " ," << bT.getPosition().y << std::endl;
+			testCentres.push_back(sf::CircleShape(radius/2.f));
+			testCentres.back().setFillColor(sf::Color::Green);
+			testCentres.back().setOrigin(radius / 2.f, radius / 2.f);
+			testCentres.back().setPosition(collidables.back().getPosition());
+			
 		}
 		else if (shapeName == "Triangle"){
 			collidables.push_back(BouncingThing(radius, Speed, ScreenWidth, ScreenHeight,
@@ -122,8 +129,8 @@ int main()
 	int amountOfShapes = AmountOfSquares + AmountOfTriangles;
 	
 	//add shapes
-	AddShapes("Square", AmountOfSquares, collidableShapes);
-	AddShapes("Triangle", AmountOfTriangles, collidableShapes);
+	AddShapes(sf::String("Square"), AmountOfSquares, collidableShapes);
+	AddShapes(sf::String("Triangle"), AmountOfTriangles, collidableShapes);
 
 	float test = 0;
 	// Start game loop 
@@ -154,6 +161,7 @@ int main()
 
 		for (int i = 0; i < amountOfShapes; i++) {
 			collidableShapes[i].Update(dt);
+			testCentres[i].setPosition(collidableShapes[i].getPosition());
 		}
 		CheckCollisions(collidableShapes);
 		fpsText.setString("Fps: " + std::to_string(fps));
@@ -166,6 +174,7 @@ int main()
 		window.draw(fpsText);
 		for (int i = 0; i < amountOfShapes; i++) {
 			window.draw(collidableShapes[i].getShape());
+			window.draw(testCentres[i]);
 		}
 
 		// Finally, display rendered frame on screen 
