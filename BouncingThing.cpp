@@ -6,7 +6,8 @@ ScreenHeight(screenHeight), m_position(position), m_rotationSpeed(shapeRotateSpe
 	m_velocity = direction * Speed;
 	m_rotation = 0;
 	m_shape.setPointCount(m_PointAmount);
-	m_shape.setOrigin(radius, radius);
+	m_shape.setFillColor(sf::Color((rand() % 100) / 100.f * 255, (rand() % 100) / 100.f * 255, (rand() % 100) / 100.f * 255));
+	m_rect = sf::FloatRect(m_position.x - radius, m_position.y - radius, radius * 2, radius * 2);
 	setUpShape();
 }
 
@@ -20,47 +21,27 @@ void BouncingThing::setUpShape() {
 }
 
 void BouncingThing::Update(float dt){
-	//CheckWallCollisions();
-	//m_position += m_velocity * dt;
-//	m_rotation += m_rotationSpeed;
+	CheckWallCollisions();
+	m_position += m_velocity * dt;
+	m_rotation += m_rotationSpeed;
 	setUpShape();
+	m_rect.left = m_position.x - Radius;
+	m_rect.top = m_position.y - Radius;
 }
 
 void BouncingThing::CheckWallCollisions(){
 	//wall conditions
 	if (m_position.x < Radius || m_position.x + 2 * Radius > ScreenWidth) {
 		m_velocity.x *= -1;
-		m_position.x += m_velocity.x > 0 ? 1 : -1;
+		m_position.x = m_velocity.x > 0 ? Radius : ScreenWidth - 2 * Radius;
 	}
 	if (m_position.y < Radius || m_position.y + 2 * Radius > ScreenHeight){
 		m_velocity.y *= -1;
-		m_position.y += m_velocity.y > 0 ? 1 : -1;
+		m_position.y = m_velocity.y > 0 ? Radius : ScreenHeight - 2 * Radius;
 	}
 }
 
-bool BouncingThing::isCollidingWith(BouncingThing &c){ 
-	bool colliding = false;
-	if (this != &c) {
-		sf::Vector2f vectorBetween = m_position - c.getPosition();
-		float distance = Collision::getLength(vectorBetween);
-		if (distance < Radius + c.getRadius()) //Circle collision detection - Broad Phase
-			colliding = Collision::checkForCollisionSAT((*this), c); //narrow phase
-	}
-	return colliding;
-}
-
-void BouncingThing::resolveCollisionWith(BouncingThing &c){
-	sf::Vector2f vectorBetween = Collision::getNormal(m_position - c.getPosition()); //normalise
-	sf::Vector2f vpa1 = Collision::getDotProduct(m_velocity, vectorBetween) * vectorBetween;//parallel proj of velocity onto LOI
-	sf::Vector2f vpr1 = m_velocity - vpa1;//perpendicular proj of velocity on LOI (wont change)
- 	sf::Vector2f vpa2 = Collision::getDotProduct(c.getVelocity(), vectorBetween) * vectorBetween;
-	sf::Vector2f vpr2 = c.getVelocity() - vpa2;
-
-	setVelocity(vpa2 + vpr1);
-	c.setVelocity(vpa1 + vpr2);
-}
-
-sf::Vector2f BouncingThing::getVelocity(){
+sf::Vector2f BouncingThing::getVelocity() const{
 	return m_velocity;
 }
 
@@ -68,15 +49,15 @@ void BouncingThing::setVelocity(sf::Vector2f newVel){
 	m_velocity = newVel;
 }
 
-sf::ConvexShape BouncingThing::getShape(){
+sf::ConvexShape BouncingThing::getShape() const{
 	return m_shape;
 }
 
-float BouncingThing::getRadius(){
+float BouncingThing::getRadius() const{
 	return Radius;
 }
 
-sf::Vector2f BouncingThing::getPosition(){
+sf::Vector2f BouncingThing::getPosition() const{
 	return m_position;
 }
 
@@ -85,7 +66,7 @@ void BouncingThing::setRotation(float rotate) {
 }
 
 
-std::vector<sf::Vector2f> BouncingThing::getNormals(){
+std::vector<sf::Vector2f> BouncingThing::getNormals() const{
 	std::vector<sf::Vector2f> normals;
 	for (int i = 0; i < m_PointAmount; i++){
 		int next;
@@ -97,20 +78,22 @@ std::vector<sf::Vector2f> BouncingThing::getNormals(){
 		float dy = m_shape.getPoint(i).y - m_shape.getPoint(next).y;
 
 		//This removes duplicates of normals that are just pointing in opposite directions
-	/*	for (int j = 0; j < normals.size(); j++){
+		for (int j = 0; j < normals.size(); j++){
 			if (abs((int)dx) == abs((int)normals[j].y) &&
 				abs((int)dy) == abs((int)normals[j].x)) {
 				normals.erase(normals.begin() + j);
 				break;
 			}
-		}*/
+		}
 
-		normals.push_back(Collision::getNormal(sf::Vector2f(-dy, dx)));
+		normals.push_back(sf::Vector2f(-dy, dx));
 	}
+	for (sf::Vector2f& v : normals)
+		Collision::normalise(v);
 	return normals;
 }
 
-std::vector<sf::Vector2f> BouncingThing::getPoints(){
+std::vector<sf::Vector2f> BouncingThing::getPoints() const{
 	std::vector<sf::Vector2f> points;
 	for (int i = 0; i < m_PointAmount; i++){
 		points.push_back(m_shape.getPoint(i));
@@ -120,4 +103,9 @@ std::vector<sf::Vector2f> BouncingThing::getPoints(){
 
 void BouncingThing::move(sf::Vector2f value){
 	m_position += value;
+}
+
+
+sf::FloatRect BouncingThing::getRect() const{
+	return m_rect;
 }

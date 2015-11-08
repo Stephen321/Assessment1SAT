@@ -9,21 +9,21 @@ public:
 	BouncingThing(float radius = 10, float speed = 5, int screenWidth = 800, int screenHeight = 600,
 		sf::Vector2f position = sf::Vector2f(), float shapeRotateSpeed = 0, int shapePoints = 16);
 	void Update(float);
-	bool isCollidingWith(BouncingThing &c);
-	void resolveCollisionWith(BouncingThing &c);
-	sf::ConvexShape getShape();
+	sf::ConvexShape getShape() const;
 	int getID();
-	sf::Vector2f getVelocity();
-	float getRadius();
+	sf::Vector2f getVelocity() const;
+	float getRadius() const;
 	void setRotation(float rotate);
-	sf::Vector2f getPosition();
-	std::vector<sf::Vector2f> getNormals();
-	std::vector<sf::Vector2f> getPoints();
+	sf::Vector2f getPosition() const;
+	sf::FloatRect getRect() const;
+	std::vector<sf::Vector2f> getNormals() const;
+	std::vector<sf::Vector2f> getPoints() const;
 	void move(sf::Vector2f value);
-
-protected:
-	void CheckWallCollisions();
 	void setVelocity(sf::Vector2f newVel);
+
+private:
+	void CheckWallCollisions();
+	sf::FloatRect m_rect;
 	sf::ConvexShape m_shape;
 	sf::Vector2f m_velocity;
 	sf::Vector2f m_position;
